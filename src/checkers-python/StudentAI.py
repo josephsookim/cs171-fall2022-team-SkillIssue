@@ -20,6 +20,8 @@ class StudentAI():
         else:
             self.color = 1
         moves = self.board.get_all_possible_moves(self.color)
+
+        # get row, col
         index = randint(0,len(moves)-1)
         inner_index =  randint(0,len(moves[index])-1)
         move = moves[index][inner_index]
