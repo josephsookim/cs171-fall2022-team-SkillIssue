@@ -22,17 +22,23 @@ class StudentAI():
             self.color = 1
 
         moves = self.board.get_all_possible_moves(self.color)
-        best_seq_score, best_seq = self.minimax(4)
+        best_seq_score, best_seq = self.minimax(3, 0, moves[0][0])
 
         self.board.make_move(best_seq, self.color)
         return best_seq
 
-    def minimax(self, depth):
+    def minimax(self, depth, best_seq_score, best_move):
         if depth == 0:
-            return self.board.black_count - self.board.white_count, None
+            if self.color == 1:
+                return self.board.black_count - self.board.white_count, best_move
+            elif self.color == 2:
+                return self.board.white_count - self.board.black_count, best_move
 
-        if self.board.is_win(self.color):
-            return 100, None
+        if self.board.is_win(self.color) == self.color:
+            return 100, best_move
+
+        elif self.board.is_win(self.color) == self.opponent[self.color]:
+            return -100, best_move
 
         moves = self.board.get_all_possible_moves(self.color)
         best_seq_score = 0
@@ -41,10 +47,18 @@ class StudentAI():
         for possible_move in moves:
             for possible_seq in possible_move:
                 self.board.make_move(possible_seq, self.color)
-                possible_seq_score, _ = self.minimax(depth - 1)
-                if possible_seq_score > best_seq_score:
-                    best_seq_score = possible_seq_score
-                    best_seq = possible_seq
-                self.board.undo()
+                if self.get_possible_move_count() > 0:
+                    possible_seq_score, _ = self.minimax(depth - 1, best_seq_score, best_seq)
+                    if possible_seq_score > best_seq_score:
+                        best_seq_score = possible_seq_score
+                        best_seq = possible_seq
+                    self.board.undo()
+
+                else:
+                    self.board.undo()
+                    break # next iteration
 
         return best_seq_score, best_seq
+
+    def get_possible_move_count(self):
+        return len(self.board.get_all_possible_moves(self.color))
