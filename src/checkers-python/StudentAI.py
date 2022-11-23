@@ -45,18 +45,26 @@ class StudentAI():
         best_seq = moves[0][0]
 
         for possible_move in moves:
+            current_seq_score = 0
             for possible_seq in possible_move:
                 self.board.make_move(possible_seq, self.color)
                 if self.get_possible_move_count() > 0:
-                    possible_seq_score, _ = self.minimax(depth - 1, best_seq_score, best_seq)
-                    if possible_seq_score > best_seq_score:
-                        best_seq_score = possible_seq_score
-                        best_seq = possible_seq
+                    seq_score, _ = self.minimax(depth - 1, best_seq_score, best_seq)
+                    current_seq_score += seq_score
                     self.board.undo()
 
                 else:
                     self.board.undo()
                     break # next iteration
+
+            # if there is no inner break, check max seq score
+            else:
+                if current_seq_score > best_seq_score:
+                    best_seq_score = current_seq_score
+                    best_seq = possible_seq
+
+            # go to next iteration regardless
+            continue
 
         return best_seq_score, best_seq
 
